@@ -4,6 +4,7 @@ class ControllerExtensionTotalFreeGift extends Controller {
     $this->load->language('extension/total/free_gift');
     $this->load->model('setting/setting');
     $this->load->model('localisation/language');
+    $this->load->model('localisation/currency');
 
     $this->document->setTitle($this->language->get('heading_title'));
 
@@ -24,6 +25,7 @@ class ControllerExtensionTotalFreeGift extends Controller {
 
     $data['gifts']                = $this->getGifts();
     $data['languages']            = $this->model_localisation_language->getLanguages();
+    $data['currencies']             = $this->model_localisation_currency->getCurrencies();
     $data['free_gift_status']     = $this->config->get('total_free_gift_status');
     $data['free_gift_sort_order'] = $this->config->get('total_free_gift_sort_order');
 
@@ -60,16 +62,19 @@ class ControllerExtensionTotalFreeGift extends Controller {
     $gifts = isset($this->request->post['gifts']) ? $this->request->post['gifts'] : [];
 
     foreach($gifts as $gift){
-      // if(!empty($gift['product_ids']) && preg_match('/^[0-9][0-9,]*(?<!,)$/', $gift['product_ids']) && !empty( $gift['amount'])){
       if(!empty($gift['product_ids']) && !empty( $gift['amount'])){
-        $sql = "INSERT INTO ".DB_PREFIX."free_gift (`product_ids`, `amount`, ";
+        $sql = "INSERT INTO ".DB_PREFIX."free_gift (`product_ids`, ";
         
         foreach($this->model_localisation_language->getLanguages() as $language){
           $sql .= "`gift_".$language['code']."`,";
         }
+
+        foreach($this->model_localisation_currency->getCurrencies() as $currency){
+          $sql .= "`amount_".$currency['code']."`,";
+        }
   
         $sql = substr($sql, 0, -1);
-        $sql .= ") VALUES ('".implode(',', $gift['product_ids'])."', ".$gift['amount'].", ";
+        $sql .= ") VALUES ('".implode(',', $gift['product_ids'])."', ";
       }else{
         break;
       }
@@ -77,6 +82,12 @@ class ControllerExtensionTotalFreeGift extends Controller {
       foreach($this->model_localisation_language->getLanguages() as $language){
         if(!empty($gift['gift'][$language['code']])){
           $sql .= "'".addslashes($gift['gift'][$language['code']])."',";
+        }
+      }
+
+      foreach($this->model_localisation_currency->getCurrencies() as $currency){
+        if(!empty($gift['amount'][$currency['code']])){
+          $sql .= $gift['amount'][$currency['code']].",";
         }
       }
 
@@ -111,15 +122,18 @@ class ControllerExtensionTotalFreeGift extends Controller {
 
   public function install(){
     $this->load->model('localisation/language');
+    $this->load->model('localisation/currency');
 
     $sql = "CREATE TABLE IF NOT EXISTS ".DB_PREFIX."free_gift (
       `free_gift_id` int(11) NOT NULL AUTO_INCREMENT PRIMARY KEY,
-      `product_ids` text NOT NULL,
-      `amount` decimal(15,4) NOT NULL DEFAULT '0.0000',";
-      
+      `product_ids` text NOT NULL,";
+
+    foreach($this->model_localisation_currency->getCurrencies() as $currency){
+      $sql .= " `amount_".$currency['code']."` decimal(15,4) NOT NULL DEFAULT '0.0000',";
+    }
 
     foreach($this->model_localisation_language->getLanguages() as $language){
-      $sql .= "`gift_".$language['code']."` text NOT NULL,";
+      $sql .= " `gift_".$language['code']."` text NOT NULL,";
     }
 
     $sql = substr($sql, 0, -1);

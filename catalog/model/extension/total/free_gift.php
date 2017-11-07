@@ -15,7 +15,7 @@ class ModelExtensionTotalFreeGift extends Model {
         }
       }
 
-      if($count_total >= $gift['amount']){
+      if($count_total >= $gift['amount_'.$this->session->data['currency']]){
         $total['totals'][] = array(
           'code'       => 'free_gift',
           'title'      => $gift['gift_'.$this->session->data['language']],

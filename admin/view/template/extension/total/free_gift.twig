@@ -55,10 +55,12 @@
               <div class="col-sm-1">
                 <button type="button" class="btn btn-danger remove-gift" style="margin-top:22px;">-</button>
               </div>
-              <div class="col-sm-2">
-                  <label class="control-label">{{ entry_amount }}</label>
-                <input type="number" class="form-control" name="gifts[{{ time }}][amount]" value="">
+              {% for currency in currencies %}
+              <div class="col-sm-3">
+                <label class="control-label">{{ currency.title }}</label>
+                <input type="number" class="form-control" name="gifts[{{ time }}][amount][{{ currency.code }}]" value="">
               </div>
+              {% endfor %}
               {% for language in languages %}
                 <div class="col-sm-11 col-sm-offset-1" style="margin-top: 15px;">
                   <label class="control-label">{{ entry_gift~' '~language.name }}</label>
@@ -80,10 +82,12 @@
               <div class="col-sm-1">
                 <button type="button" class="btn btn-danger remove-gift" style="margin-top:22px;">-</button>
               </div>
-              <div class="col-sm-2">
-                  <label class="control-label">{{ entry_amount }}</label>
-                <input type="number" class="form-control" name="gifts[{{ k }}][amount]" value="{{ gift.amount }}">
+              {% for currency in currencies %}
+              <div class="col-sm-3">
+                <label class="control-label">{{ currency.title }}</label>
+                <input type="number" class="form-control" name="gifts[{{ k }}][amount][{{ currency.code }}]" value="{{ gift['amount_'~currency.code] }}">
               </div>
+              {% endfor %}
               {% for language in languages %}
                 <div class="col-sm-11 col-sm-offset-1" style="margin-top: 15px;">
                   <label class="control-label">{{ entry_gift~' '~language.name }}</label>
@@ -192,10 +196,12 @@
         <div class="col-sm-1">
           <button type="button" class="btn btn-danger remove-gift" style="margin-top:22px;">-</button>
         </div>
-        <div class="col-sm-2">
-            <label class="control-label">{{ entry_amount }}</label>
-          <input type="number" class="form-control" name="gifts[`+id+`][amount]" value="">
+        {% for currency in currencies %}
+        <div class="col-sm-3">
+          <label class="control-label">{{ currency.title }}</label>
+          <input type="number" class="form-control" name="gifts[`+id+`][amount][{{ currency.code }}]" value="">
         </div>
+        {% endfor %}
         {% for language in languages %}
           <div class="col-sm-11 col-sm-offset-1" style="margin-top: 15px;">
             <label class="control-label">{{ entry_gift~' '~language.name }}</label>
